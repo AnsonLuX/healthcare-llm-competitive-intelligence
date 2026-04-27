@@ -1,0 +1,14 @@
+pandas
+numpy
+python-dotenv
+sqlalchemy
+psycopg2-binary
+
+nltk
+vaderSentiment
+
+dash
+dash-bootstrap-components
+plotly
+
+requests

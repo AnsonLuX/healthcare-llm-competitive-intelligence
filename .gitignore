@@ -1,0 +1,27 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.Python
+.venv/
+venv/
+env/
+
+# Environment variables
+.env
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Processed data and outputs
+data/processed/
+outputs/charts/
+outputs/reports/
+
+# OS files
+.DS_Store
+
+# IDE
+.vscode/
+.idea/
