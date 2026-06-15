@@ -456,7 +456,9 @@ def export_topic_scores_to_csv() -> None:
     print(f"\nExported topic scores to {output_path}")
 
 
+
 if __name__ == "__main__":
     run_topic_pipeline()
     preview_topic_results()
     export_topic_scores_to_csv()
+
