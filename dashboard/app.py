@@ -2,9 +2,11 @@ import pandas as pd
 import plotly.express as px
 from dash import Dash, dcc, html, dash_table
 import dash_bootstrap_components as dbc
-from sqlalchemy import text
 
 from src.database import get_engine
+
+
+GRAPH_CONFIG = {"displayModeBar": False, "responsive": True}
 
 
 def load_summary_metrics() -> pd.DataFrame:
@@ -100,8 +102,22 @@ def create_metric_card(title: str, value: str, subtitle: str = ""):
                 html.P(subtitle, className="text-muted", style={"fontSize": "0.9rem"}),
             ]
         ),
-        className="shadow-sm",
+        className="shadow-sm h-100",
     )
+
+
+def style_figure(fig):
+    """
+    Apply consistent dashboard styling to Plotly figures.
+    """
+    fig.update_layout(
+        template="plotly_white",
+        margin={"l": 40, "r": 20, "t": 70, "b": 40},
+        title={"x": 0.01, "xanchor": "left"},
+        legend_title_text="",
+        font={"family": "Arial"},
+    )
+    return fig
 
 
 def build_dashboard():
@@ -114,6 +130,8 @@ def build_dashboard():
     company_count = summary_df["company_name"].nunique()
     avg_tone = round(summary_df["avg_management_tone"].mean(), 4)
 
+    summary_df["avg_management_tone"] = summary_df["avg_management_tone"].round(4)
+
     top_topic_df = (
         topic_df.groupby(["company_name", "topic_name"], as_index=False)
         .agg(
@@ -122,6 +140,9 @@ def build_dashboard():
         )
         .sort_values(["company_name", "total_topic_count"], ascending=[True, False])
     )
+    top_topic_df["avg_mentions_per_10k_words"] = top_topic_df[
+        "avg_mentions_per_10k_words"
+    ].round(2)
 
     top_risk_df = (
         risk_df.groupby(["company_name", "risk_category"], as_index=False)
@@ -142,7 +163,7 @@ def build_dashboard():
         sentiment_df,
         x="period",
         y="sentiment_score",
-        line_group="company_name",
+        color="company_name",
         markers=True,
         title="Management Tone Score by Company and Quarter",
         labels={
@@ -151,12 +172,16 @@ def build_dashboard():
             "company_name": "Company",
         },
     )
+    sentiment_fig.update_yaxes(range=[0.75, 1.0])
+    sentiment_fig = style_figure(sentiment_fig)
 
     topic_bar_fig = px.bar(
         top_topic_df,
-        x="topic_name",
-        y="avg_mentions_per_10k_words",
+        x="avg_mentions_per_10k_words",
+        y="topic_name",
+        color="company_name",
         facet_col="company_name",
+        orientation="h",
         title="Average Topic Mentions per 10K Words by Company",
         labels={
             "topic_name": "Topic",
@@ -164,12 +189,17 @@ def build_dashboard():
             "company_name": "Company",
         },
     )
+    topic_bar_fig.update_yaxes(matches=None, autorange="reversed")
+    topic_bar_fig.for_each_annotation(lambda annotation: annotation.update(text=annotation.text.split("=")[-1]))
+    topic_bar_fig = style_figure(topic_bar_fig)
 
     risk_bar_fig = px.bar(
         top_risk_df,
-        x="risk_category",
-        y="total_risk_mentions",
+        x="total_risk_mentions",
+        y="risk_category",
+        color="company_name",
         facet_col="company_name",
+        orientation="h",
         title="Total Risk Signal Mentions by Company",
         labels={
             "risk_category": "Risk Category",
@@ -177,11 +207,17 @@ def build_dashboard():
             "company_name": "Company",
         },
     )
+    risk_bar_fig.update_yaxes(matches=None, autorange="reversed")
+    risk_bar_fig.for_each_annotation(lambda annotation: annotation.update(text=annotation.text.split("=")[-1]))
+    risk_bar_fig = style_figure(risk_bar_fig)
 
     topic_heatmap_df = (
         topic_df.groupby(["company_name", "topic_name"], as_index=False)
         .agg(avg_mentions_per_10k_words=("mentions_per_10k_words", "mean"))
     )
+    topic_heatmap_df["avg_mentions_per_10k_words"] = topic_heatmap_df[
+        "avg_mentions_per_10k_words"
+    ].round(2)
 
     topic_heatmap_fig = px.density_heatmap(
         topic_heatmap_df,
@@ -195,6 +231,7 @@ def build_dashboard():
             "avg_mentions_per_10k_words": "Avg Mentions per 10K Words",
         },
     )
+    topic_heatmap_fig = style_figure(topic_heatmap_fig)
 
     app = Dash(
         __name__,
@@ -255,7 +292,7 @@ def build_dashboard():
                             dbc.Row(
                                 [
                                     dbc.Col(
-                                        dcc.Graph(figure=sentiment_fig),
+                                        dcc.Graph(figure=sentiment_fig, config=GRAPH_CONFIG),
                                         md=12,
                                     ),
                                 ]
@@ -267,7 +304,12 @@ def build_dashboard():
                                 columns=[
                                     {"name": "Company", "id": "company_name"},
                                     {"name": "Transcript Count", "id": "transcript_count"},
-                                    {"name": "Avg Management Tone", "id": "avg_management_tone"},
+                                    {
+                                        "name": "Avg Management Tone",
+                                        "id": "avg_management_tone",
+                                        "type": "numeric",
+                                        "format": {"specifier": ".4f"},
+                                    },
                                 ],
                                 page_size=10,
                                 style_table={"overflowX": "auto"},
@@ -288,9 +330,9 @@ def build_dashboard():
                         label="Topic Comparison",
                         children=[
                             html.Br(),
-                            dcc.Graph(figure=topic_bar_fig),
+                            dcc.Graph(figure=topic_bar_fig, config=GRAPH_CONFIG),
                             html.Br(),
-                            dcc.Graph(figure=topic_heatmap_fig),
+                            dcc.Graph(figure=topic_heatmap_fig, config=GRAPH_CONFIG),
                             html.Br(),
                             html.H5("Top Topic Summary"),
                             dash_table.DataTable(
@@ -302,9 +344,13 @@ def build_dashboard():
                                     {
                                         "name": "Avg Mentions per 10K Words",
                                         "id": "avg_mentions_per_10k_words",
+                                        "type": "numeric",
+                                        "format": {"specifier": ".2f"},
                                     },
                                 ],
-                                page_size=15,
+                                page_size=13,
+                                sort_action="native",
+                                filter_action="native",
                                 style_table={"overflowX": "auto"},
                                 style_cell={
                                     "textAlign": "left",
@@ -323,9 +369,13 @@ def build_dashboard():
                         label="Risk Signal Monitor",
                         children=[
                             html.Br(),
-                            dcc.Graph(figure=risk_bar_fig),
+                            dcc.Graph(figure=risk_bar_fig, config=GRAPH_CONFIG),
                             html.Br(),
                             html.H5("Risk Signal Evidence Quotes"),
+                            html.P(
+                                "Showing the most recent high-frequency risk examples with matched keywords and transcript evidence.",
+                                className="text-muted",
+                            ),
                             dash_table.DataTable(
                                 data=latest_risk_quotes_df[
                                     [
@@ -347,8 +397,14 @@ def build_dashboard():
                                     {"name": "Matched Keywords", "id": "risk_keyword"},
                                     {"name": "Example Quote", "id": "example_quote"},
                                 ],
-                                page_size=10,
-                                style_table={"overflowX": "auto"},
+                                page_size=8,
+                                sort_action="native",
+                                filter_action="native",
+                                style_table={
+                                    "overflowX": "auto",
+                                    "overflowY": "auto",
+                                    "maxHeight": "620px",
+                                },
                                 style_cell={
                                     "textAlign": "left",
                                     "padding": "8px",
@@ -360,6 +416,9 @@ def build_dashboard():
                                 style_header={
                                     "fontWeight": "bold",
                                     "backgroundColor": "#f8f9fa",
+                                    "position": "sticky",
+                                    "top": 0,
+                                    "zIndex": 1,
                                 },
                             ),
                         ],
@@ -385,4 +444,4 @@ app = build_dashboard()
 
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run(debug=False)
