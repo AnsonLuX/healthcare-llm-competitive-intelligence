@@ -12,10 +12,14 @@ class Config:
     DB_PASSWORD = os.getenv("DB_PASSWORD", "")
 
     LLM_PROVIDER = os.getenv("LLM_PROVIDER", "ollama")
+
     OLLAMA_MODEL = os.getenv("OLLAMA_MODEL", "llama3.1")
+    OLLAMA_URL = os.getenv("OLLAMA_URL", "http://localhost:11434/api/generate")
+
+    GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "")
+    GEMINI_MODEL = os.getenv("GEMINI_MODEL", "gemini-3.5-flash")
 
     OPENAI_API_KEY = os.getenv("OPENAI_API_KEY", "")
-    GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "")
 
     @classmethod
     def database_url(cls) -> str:

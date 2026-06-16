@@ -12,3 +12,5 @@ dash-bootstrap-components
 plotly
 
 requests
+
+google-genai
