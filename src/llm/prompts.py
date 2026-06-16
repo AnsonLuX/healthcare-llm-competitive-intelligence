@@ -35,7 +35,7 @@ def format_risk_context(top_risks: List[Dict]) -> str:
 
 def format_quote_context(risk_quotes: List[Dict]) -> str:
     if not risk_quotes:
-        return "No evidence quotes available."
+        return "No risk evidence quotes available."
 
     lines = []
 
@@ -43,6 +43,22 @@ def format_quote_context(risk_quotes: List[Dict]) -> str:
         lines.append(
             f"- Risk Category: {quote['risk_category']}\n"
             f"  Quote: {quote['example_quote']}"
+        )
+
+    return "\n".join(lines)
+
+
+def format_transcript_snippets(snippets: List[Dict]) -> str:
+    if not snippets:
+        return "No additional transcript evidence snippets available."
+
+    lines = []
+
+    for snippet in snippets:
+        lines.append(
+            f"- Evidence Type: {snippet['evidence_type']}\n"
+            f"  Matched Signal: {snippet['matched_signal']}\n"
+            f"  Snippet: {snippet['snippet']}"
         )
 
     return "\n".join(lines)
@@ -57,18 +73,21 @@ def build_executive_summary_prompt(
     top_topics: List[Dict],
     top_risks: List[Dict],
     risk_quotes: List[Dict],
+    transcript_snippets: List[Dict],
 ) -> str:
     topic_context = format_topic_context(top_topics)
     risk_context = format_risk_context(top_risks)
     quote_context = format_quote_context(risk_quotes)
+    transcript_snippet_context = format_transcript_snippets(transcript_snippets)
 
     return f"""
 You are a healthcare competitive intelligence analyst.
 
-Your task is to generate an evidence-grounded executive briefing based only on the structured analytics signals below.
+Your task is to generate an evidence-grounded executive briefing based only on the structured analytics signals and transcript evidence below.
 Do not invent facts outside the provided data.
 Do not claim that keyword signals prove actual business performance.
 Use careful language such as "the transcript signals suggest", "management emphasized", or "risk-related mentions increased".
+When possible, connect interpretations to the provided evidence snippets.
 
 Company: {company_name}
 Period: {year} {quarter}
@@ -83,8 +102,11 @@ Top Topic Signals:
 Top Risk Signals:
 {risk_context}
 
-Evidence Quotes:
+Risk Evidence Quotes:
 {quote_context}
+
+Additional Transcript Evidence Snippets:
+{transcript_snippet_context}
 
 Return the briefing in this format:
 
@@ -92,7 +114,7 @@ Return the briefing in this format:
 Write 3-5 concise sentences summarizing the company's transcript signals for this period.
 
 ## Key Business Themes
-Write 3 bullet points. Each bullet should connect topic signals to business interpretation.
+Write 3 bullet points. Each bullet should connect topic signals to business interpretation and reference transcript evidence when useful.
 
 ## Risk Signals to Monitor
 Write 3 bullet points. Each bullet should reference the risk categories and evidence when useful.
@@ -111,5 +133,5 @@ Threats:
 - 2 bullets
 
 ## Analyst Note
-Write 2 sentences explaining that this is a baseline LLM-generated briefing based on NLP topic/risk signals and transcript evidence.
+Write 2 sentences explaining that this is a baseline LLM-generated briefing based on NLP topic/risk signals and selected transcript evidence snippets.
 """.strip()
