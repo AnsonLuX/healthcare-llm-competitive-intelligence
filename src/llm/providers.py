@@ -1,5 +1,5 @@
 import requests
-
+import time
 from src.config import Config
 
 
@@ -70,17 +70,38 @@ def call_gemini(prompt: str) -> str:
 
     client = genai.Client(api_key=Config.GEMINI_API_KEY)
 
-    try:
-        response = client.models.generate_content(
-            model=Config.GEMINI_MODEL,
-            contents=prompt,
-        )
-    except Exception as exc:
+    last_exception = None
+
+    for attempt in range(3):
+        try:
+            response = client.models.generate_content(
+                model=Config.GEMINI_MODEL,
+                contents=prompt,
+            )
+            break
+        except Exception as exc:
+            last_exception = exc
+            error_text = str(exc)
+
+            if "503" in error_text or "UNAVAILABLE" in error_text or "high demand" in error_text:
+                wait_seconds = 5 * (attempt + 1)
+                print(
+                    f"Gemini is temporarily unavailable or under high demand. "
+                    f"Retrying in {wait_seconds} seconds..."
+                )
+                time.sleep(wait_seconds)
+                continue
+
+            raise LLMProviderError(
+                f"Gemini request failed for model '{Config.GEMINI_MODEL}'. "
+                "Check that this model is available for your API key. "
+                "You can also try GEMINI_MODEL=gemini-2.5-flash."
+            ) from exc
+    else:
         raise LLMProviderError(
-            f"Gemini request failed for model '{Config.GEMINI_MODEL}'. "
-            "Check that this model is available for your API key. "
-            "You can also try GEMINI_MODEL=gemini-2.5-flash."
-        ) from exc
+            f"Gemini request failed after retries for model '{Config.GEMINI_MODEL}'. "
+            "The model may be under temporary high demand. Try again later or switch to GEMINI_MODEL=gemini-2.5-flash."
+        ) from last_exception    
 
     generated_text = getattr(response, "text", "")
 
