@@ -368,7 +368,11 @@ def extract_transcript_evidence_snippets(
 
     This keeps LLM prompts grounded without sending the full transcript.
     """
-    sentences = split_text_into_sentences(transcript_text)
+    # Skip the transcript header / participant list area.
+    # This helps avoid selecting snippets such as company title,
+    # conference call participants, and speaker lists as evidence.
+    analysis_text = transcript_text[2500:] if len(transcript_text) > 2500 else transcript_text
+    sentences = split_text_into_sentences(analysis_text)
     topic_keyword_map = build_topic_keyword_map()
 
     snippets: List[Dict] = []
@@ -376,7 +380,20 @@ def extract_transcript_evidence_snippets(
 
     def add_snippet(evidence_type: str, matched_signal: str, sentence: str) -> None:
         cleaned_sentence = sentence.strip()
+        lower_sentence = cleaned_sentence.lower()
+        # Filter the header / speaker list
+        header_markers = [
+            "earnings conference call",
+            "company participants",
+            "conference call participants",
+            "analyst",
+            "operator",
+            "chief executive officer",
+            "chief financial officer",
+        ]
 
+        if any(marker in lower_sentence for marker in header_markers):
+            return    
         if len(cleaned_sentence) < 80:
             return
 
