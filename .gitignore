@@ -25,3 +25,37 @@ outputs/reports/
 # IDE
 .vscode/
 .idea/
+# Environment
+.venv/
+venv/
+env/
+.env
+.env.local
+.env.*.local
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.Python
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Data
+# Do not publish raw transcript files or generated local analytics exports.
+data/raw/
+data/processed/
+outputs/charts/
+outputs/reports/
+
+# Logs
+*.log
+
+# OS files
+.DS_Store
+
+# IDE
+.vscode/
+.idea/
