@@ -1,168 +1,34 @@
 # Healthcare LLM Competitive Intelligence Analytics Platform
 
-## 1. Project Overview
-
-This project is an end-to-end AI analytics platform designed to analyze healthcare competitors’ earnings call transcripts and convert unstructured text into structured business insights.
-
-The platform focuses on three major healthcare companies:
-
-- Elevance Health
-- CVS Health / Aetna
-- UnitedHealth Group
-
-The project uses earnings call transcripts from 2020 to 2024 to identify competitor strategy, business risks, sentiment trends, and healthcare market signals. It combines traditional analytics, NLP, LLM workflows, and interactive dashboards to support business-facing competitive intelligence analysis.
-
-## 2. Project Goal
-
-The main goal is to build a healthcare competitive intelligence platform that helps business stakeholders answer questions such as:
-
-- What topics are competitors focusing on over time?
-- How does sentiment change by company, year, and quarter?
-- Which healthcare themes are becoming more important?
-- What risk signals appear in competitor earnings calls?
-- How do companies talk about Medicare Advantage, Medicaid, PBM, cost pressure, regulation, and AI/digital health?
-- Can LLM workflows generate useful, evidence-based SWOT analysis and executive summaries?
-
-## 3. Business Problem
-
-Healthcare payers operate in a highly competitive and regulated market. Public earnings call transcripts contain valuable signals about company strategy, financial pressure, market risks, and executive priorities.
-
-However, reading transcripts manually is time-consuming and difficult to scale.
-
-This project automates part of that analyst workflow by transforming earnings call transcripts into structured data, extracting NLP signals, generating AI-assisted insights, and presenting the results in an interactive dashboard.
-
-## 4. Target Users
-
-The target users of this platform are:
-
-- Healthcare strategy teams
-- Business analysts
-- Competitive intelligence analysts
-- Market research teams
-- Data analysts
-- Executive reporting teams
-
-## 5. Data Sources
-
-### Primary Data
-
-Earnings call transcripts from 2020 to 2024 for:
-
-- Elevance Health
-- CVS Health / Aetna
-- UnitedHealth Group
-
-### Optional Data Enhancement
-
-Structured financial metrics can be added later, such as:
-
-- Revenue
-- Operating income
-- EPS
-- Medical cost ratio
-- Membership growth
-- Guidance changes
-
-## 6. Core Project Scope
-
-This project will be built in several stages.
-
-The first version will focus on:
-
-1. Transcript ingestion and cleaning
-2. Data modeling in PostgreSQL
-3. NLP feature extraction
-4. Topic and sentiment analysis
-5. LLM-based SWOT and executive summary generation
-6. Interactive dashboard using Dash and Plotly
-
-Future versions may include:
-
-- RAG-based transcript search
-- Embedding-based evidence retrieval
-- Financial metric integration
-- Docker deployment
-- AWS deployment
-- Data quality checks
-- Scheduled pipeline automation
-
-## 7. Recommended Tech Stack
-
-### Data Processing
-
-- Python
-- Pandas
-- NumPy
-- Regex
-- SQLAlchemy
-
-### Database
-
-- PostgreSQL
-
-### NLP
-
-- VADER or TextBlob for baseline sentiment analysis
-- spaCy or NLTK for text preprocessing
-- Optional: sentence-transformers for embeddings
-
-### LLM Workflow
-
-- Ollama for local LLM experimentation
-- Gemini API or OpenAI API as optional alternatives
-- Prompt templates for SWOT and executive summaries
-- Optional: ChromaDB or FAISS for vector search
-
-### Dashboard
-
-- Dash
-- Plotly
-- Dash Bootstrap Components
-
-### Deployment
-
-Initial version:
-
-- Local development
-
-Future version:
-
-- Docker
-- AWS EC2
-- Render
-- Railway
-- Hugging Face Spaces
-
-## 8. High-Level Architecture
-
-````text
-Raw Transcript Files
-        |
-        v
-Transcript Ingestion
-        |
-        v
-Text Cleaning and Metadata Extraction
-        |
-        v
-PostgreSQL Database
-        |
-        v
-NLP Feature Extraction
-        |
-        v
-Topic, Sentiment, and Risk Signal Tables
-        |
-        v
-LLM Insight Generation
-        |
-        v
-Dash + Plotly Dashboard
-# Healthcare LLM Competitive Intelligence Analytics Platform
-
 An AI-powered analytics platform that turns healthcare earnings call transcripts into structured competitive intelligence, NLP signals, risk monitoring, LLM-generated executive briefings, and LLM quality evaluation.
 
 This project analyzes earnings call transcripts from **Elevance Health**, **CVS Health / Aetna**, and **UnitedHealth Group** across **2020–2024**. It was designed as a portfolio-ready data analytics / AI analytics project that demonstrates data ingestion, PostgreSQL modeling, NLP feature extraction, LLM workflow design, dashboarding, and LLM output evaluation.
+
+---
+
+## Dashboard Preview
+
+### Executive Overview
+
+![Executive Overview](assets/dashboard-overview.png)
+
+### Topic Comparison
+
+![Topic Comparison 1](assets/topic-comparison1.png)
+
+![Topic Comparison 2](assets/topic-comparison2.png)
+
+### Risk Signal Monitor
+
+![Risk Monitor](assets/risk-monitor.png)
+
+### AI Briefing / SWOT
+
+![AI Briefing SWOT](assets/ai-briefing-swot.png)
+
+### LLM Quality Monitor
+
+![LLM Quality Monitor](assets/llm-quality-monitor.png)
 
 ---
 
@@ -230,16 +96,16 @@ Current evaluation metrics include:
 
 Current evaluation summary:
 
-| Metric | Result |
-|---|---:|
-| Evaluated LLM Insights | 53 |
-| Average Overall Quality | 4.79 / 5 |
-| Average Format Compliance | 5.00 / 5 |
-| Average Topic Alignment | 4.91 / 5 |
-| Average Risk Alignment | 4.24 / 5 |
-| Average Source Traceability | 5.00 / 5 |
-| Average Evidence Quotes Available | 6.28 |
-| Manual Review Records | 1 |
+| Metric                            |   Result |
+| --------------------------------- | -------: |
+| Evaluated LLM Insights            |       53 |
+| Average Overall Quality           | 4.79 / 5 |
+| Average Format Compliance         | 5.00 / 5 |
+| Average Topic Alignment           | 4.91 / 5 |
+| Average Risk Alignment            | 4.24 / 5 |
+| Average Source Traceability       | 5.00 / 5 |
+| Average Evidence Quotes Available |     6.28 |
+| Manual Review Records             |        1 |
 
 The evaluation layer is an audit proxy, not a factual correctness guarantee. It is designed to flag incomplete, weakly grounded, or poorly aligned outputs for analyst review.
 
@@ -317,12 +183,12 @@ Dashboard tabs include:
 
 Current transcript coverage:
 
-| Company | Transcript Count | LLM Insight Count |
-|---|---:|---:|
-| CVS Health / Aetna | 17 | 17 |
-| Elevance Health | 18 | 18 |
-| UnitedHealth Group | 18 | 18 |
-| **Total** | **53** | **53** |
+| Company            | Transcript Count | LLM Insight Count |
+| ------------------ | ---------------: | ----------------: |
+| CVS Health / Aetna |               17 |                17 |
+| Elevance Health    |               18 |                18 |
+| UnitedHealth Group |               18 |                18 |
+| **Total**          |           **53** |            **53** |
 
 Every loaded transcript has a corresponding LLM insight.
 
@@ -367,7 +233,7 @@ LLM Evaluation Layer
         |
         v
 Dash + Plotly Dashboard
-````
+```
 
 ---
 
@@ -482,7 +348,6 @@ Planned next steps:
 - Add analyze button for a single company/year/quarter
 - Add company-year batch analysis mode
 - Add optional prompt template selector
-- Add dashboard screenshots to README
 - Add deployment instructions
 
 ---
